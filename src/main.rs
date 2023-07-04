@@ -16,7 +16,7 @@ fn main() {
     let mut log_watcher = LogWatcher::register(filename).unwrap();
 
     log_watcher.watch(&mut move |line: String| {
-        println!("Line {}", line);
+        println!("Line {line}");
         LogWatcherAction::None
     });
 }

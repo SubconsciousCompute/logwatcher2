@@ -54,21 +54,19 @@ impl LogWatcher {
             match File::open(&self.filename) {
                 Ok(x) => {
                     let f = x;
-                    let metadata = match f.metadata() {
-                        Ok(m) => m,
-                        Err(_) => {
-                            sleep(Duration::new(1, 0));
-                            continue;
-                        }
+                    let Ok(m) = f.metadata() else {
+                        sleep(Duration::new(1, 0));
+                        continue;
                     };
-                    if metadata.ino() != self.inode {
+
+                    if m.ino() != self.inode {
                         self.finish = true;
                         self.watch(callback);
                         self.finish = false;
                         println!("reloading log file");
                         self.reader = BufReader::new(f);
                         self.pos = 0;
-                        self.inode = metadata.ino();
+                        self.inode = m.ino();
                     } else {
                         sleep(Duration::new(1, 0));
                     }
@@ -112,7 +110,7 @@ impl LogWatcher {
                     }
                 }
                 Err(err) => {
-                    println!("{}", err);
+                    println!("{err}");
                 }
             }
         }
