@@ -40,8 +40,8 @@ impl LogWatcher {
         Ok(LogWatcher {
             filename: filename.as_ref().to_string_lossy().to_string(),
             inode: metadata.ino(),
-            pos: pos,
-            reader: reader,
+            pos,
+            reader,
             finish: false,
         })
     }
@@ -96,7 +96,7 @@ impl LogWatcher {
                     if len > 0 {
                         self.pos += len as u64;
                         self.reader.seek(SeekFrom::Start(self.pos)).unwrap();
-                        match callback(line.replace("\n", "")) {
+                        match callback(line.replace('\n', "")) {
                             LogWatcherAction::SeekToEnd => {
                                 println!("SeekToEnd");
                                 self.reader.seek(SeekFrom::End(0)).unwrap();
@@ -104,13 +104,11 @@ impl LogWatcher {
                             LogWatcherAction::None => {}
                         }
                         line.clear();
+                    } else if self.finish {
+                        break;
                     } else {
-                        if self.finish {
-                            break;
-                        } else {
-                            self.reopen_if_log_rotated(callback);
-                            self.reader.seek(SeekFrom::Start(self.pos)).unwrap();
-                        }
+                        self.reopen_if_log_rotated(callback);
+                        self.reader.seek(SeekFrom::Start(self.pos)).unwrap();
                     }
                 }
                 Err(err) => {

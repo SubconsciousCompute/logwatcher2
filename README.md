@@ -1,10 +1,8 @@
-# Log Watcher
-
-[![Build Status](https://travis-ci.org/aravindavk/logwatcher.svg?branch=master)](https://travis-ci.org/aravindavk/logwatcher)
+# Log Watcher 2
 
 A [Rust](https://www.rust-lang.org/) library to watch the log files.
 
-Note: Tested only in Linux
+Note: Tested only on Linux
 
 ### Features:
 1. Automatically reloads log file when log rotated
@@ -16,7 +14,7 @@ First, add the following to your `Cargo.toml`
 
 ```toml
 [dependencies]
-logwatcher = "0.1"
+logwatcher = "0.2.0"
 ```
 
 Add to your code,
