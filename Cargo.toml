@@ -1,6 +1,6 @@
 [package]
 name = "logwatcher2"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["Aravinda VK <mail@aravindavk.in>", "sn99 <siddharthn.099@gmail.com>"]
 edition = "2021"
 

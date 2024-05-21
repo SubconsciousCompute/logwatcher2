@@ -18,6 +18,7 @@ pub enum LogWatcherEvent {
 
 pub enum LogWatcherAction {
     None,
+    Finish,
     SeekToEnd,
 }
 
@@ -96,6 +97,9 @@ impl LogWatcher {
             LogWatcherAction::SeekToEnd => {
                 self.reader.seek(SeekFrom::End(0)).unwrap();
             }
+            LogWatcherAction::Finish => {
+                self.finish = true;
+            }
             LogWatcherAction::None => {}
         }
     }
@@ -104,8 +108,11 @@ impl LogWatcher {
     where
         F: FnMut(Result<LogWatcherEvent, LogWatcherError>) -> LogWatcherAction,
     {
+        let mut line = String::new();
         loop {
-            let mut line = String::new();
+            if self.finish {
+                break;
+            }
             let resp = self.reader.read_line(&mut line);
             match resp {
                 Ok(len) => {
@@ -114,9 +121,6 @@ impl LogWatcher {
                         self.reader.seek(SeekFrom::Start(self.pos)).unwrap();
                         let event = LogWatcherEvent::Line(line.replace('\n', ""));
                         self.handle_callback_action(callback(Ok(event)));
-                        line.clear();
-                    } else if self.finish {
-                        break;
                     } else {
                         if self.reopen_if_log_rotated(callback) {
                             self.handle_callback_action(callback(Ok(LogWatcherEvent::LogRotation)));
@@ -128,6 +132,7 @@ impl LogWatcher {
                     self.handle_callback_action(callback(Err(err)));
                 }
             }
+            line.clear();
         }
     }
 }

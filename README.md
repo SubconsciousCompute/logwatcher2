@@ -20,8 +20,7 @@ logwatcher = "0.2.0"
 Add to your code,
 
 ```rust
-extern crate logwatcher;
-use logwatcher::LogWatcher;
+use logwatcher::{LogWatcherAction, LogWatcherEvent, LogWatcher};
 ```
 
 Register the logwatcher, pass a closure and watch it!
@@ -29,8 +28,20 @@ Register the logwatcher, pass a closure and watch it!
 ```rust
 let mut log_watcher = LogWatcher::register("/var/log/check.log".to_string()).unwrap();
 
-log_watcher.watch(&mut move |line: String| {
-    println!("Line {}", line);
+log_watcher.watch(&mut move |result| {
+    match result {
+        Ok(event) => match event {
+            LogWatcherEvent::Line(line) => {
+                println!("Line {}", line);
+            }
+            LogWatcherEvent::LogRotation => {
+                println!("Logfile rotation");
+            }
+        },
+        Err(err) => {
+            println!("Error {}", err);
+        }
+    }
     LogWatcherAction::None
 });
 ```
